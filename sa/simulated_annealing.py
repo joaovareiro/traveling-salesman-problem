@@ -2,89 +2,86 @@ import math
 from sys import argv
 import random
 
-# TODO: rename variables, functions, etc to snake_case
-
 TEMPERATURE_MAX = 10
 COOLING_RATE = 0.95
 NUMBER_OF_ITERATIONS = 20
 TEMPERATURE_MIN = 5
 
-def readData(filePath):
-    vertexList = {}
-    file = open(filePath, 'r')
+def read_data(file_path):
+    data = {}
+    file = open(file_path, 'r')
     for line in file:
-        data = line.rstrip().split()
-        id = int(data[0]) - 1
-        coordinates = (int(data[1]), int(data[2]))
-        vertexList[id] = coordinates
+        line_data = line.rstrip().split()
+        id = int(line_data[0]) - 1
+        coordinates = (int(line_data[1]), int(line_data[2]))
+        data[id] = coordinates
     file.close()
-    
-    return vertexList
+    return data
 
 
-def generateNeighbour(solution, vertex1Index, vertex2Index):
+def generate_neighbour(solution, first_vertex_index, second_vertex_index):
     neighbour = solution.copy()
 
-    for i in range(0, vertex1Index - 1):
+    for i in range(0, first_vertex_index - 1):
         neighbour[i] = solution[i]
-    for i in range(vertex1Index, vertex2Index + 1):
-        neighbour[i] = solution[vertex2Index - i + vertex1Index]
-    for i in range(vertex2Index + 1, len(solution)):
+    for i in range(first_vertex_index, second_vertex_index + 1):
+        neighbour[i] = solution[second_vertex_index - i + first_vertex_index]
+    for i in range(second_vertex_index + 1, len(solution)):
         neighbour[i] = solution[i]
     
     return neighbour
 
 
-def calculateDistance(currentVertex, nextVertex):
-    x1, y1 = currentVertex
-    x2, y2 = nextVertex
+def calculate_distance(current_vertex, next_vertex):
+    x1, y1 = current_vertex
+    x2, y2 = next_vertex
     return math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2)
 
 
-def evaluateSolution(solution, coordinates):
-    totalDistance = 0
-    for vertexIndex in range(len(solution) - 1):
-        currentVertex = solution[vertexIndex]
-        nextVertex = solution[vertexIndex + 1]
-        totalDistance += calculateDistance(coordinates[currentVertex], coordinates[nextVertex])
-    return totalDistance
+def evaluate_solution(solution, coordinates):
+    total_distance = 0
+    for vertex_index in range(len(solution) - 1):
+        current_vertex = solution[vertex_index]
+        next_vertex = solution[vertex_index + 1]
+        total_distance += calculate_distance(coordinates[current_vertex], coordinates[next_vertex])
+    return total_distance
 
 
-def probability(temperature, currentValue, newValue):
-    eulerNumber = math.e
-    result = eulerNumber * ((currentValue - newValue)/temperature)
+def probability(temperature, current_value, new_value):
+    euler_number = math.e
+    result = euler_number * ((current_value - new_value)/temperature)
     return result
 
 
 # get input file path from argv
-filePath = argv[1]
+file_path = argv[1]
 # read data from file
-coordinates = readData(filePath)
-bestSolution = list(coordinates.keys())
-random.shuffle(bestSolution)
+coordinates = read_data(file_path)
+best_solution = list(coordinates.keys())
+random.shuffle(best_solution)
 # evaluate initial solution
-bestValue = evaluateSolution(bestSolution, coordinates)
+best_value = evaluate_solution(best_solution, coordinates)
 
 # define initial temperature to a high value
 temperature = TEMPERATURE_MAX
 
 while temperature > TEMPERATURE_MIN:
-    currentIteration = 0
-    while currentIteration != NUMBER_OF_ITERATIONS:
-        vertex1 = random.randint(0, len(bestSolution) - 1)
-        vertex2 = random.randint(0, len(bestSolution) - 1)
-        newSolution = generateNeighbour(bestSolution, min(vertex1, vertex2), max(vertex1, vertex2))
-        newValue = evaluateSolution(newSolution, coordinates)
-        if newValue < bestValue:
-            bestSolution, bestValue = newSolution.copy(), newValue
+    current_iteration = 0
+    while current_iteration != NUMBER_OF_ITERATIONS:
+        vertex1 = random.randint(0, len(best_solution) - 1)
+        vertex2 = random.randint(0, len(best_solution) - 1)
+        new_solution = generate_neighbour(best_solution, min(vertex1, vertex2), max(vertex1, vertex2))
+        new_value = evaluate_solution(new_solution, coordinates)
+        if new_value < best_value:
+            best_solution, best_value = new_solution.copy(), new_value
         else:
-           if random.random() < probability(temperature, bestValue, newValue):
-               bestSolution, bestValue = newSolution.copy(), newValue
-        currentIteration += 1
+           if random.random() < probability(temperature, best_value, new_value):
+               best_solution, best_value = new_solution.copy(), new_value
+        current_iteration += 1
     temperature = COOLING_RATE * temperature
 
 # TODO: write to file, in order to keep a history
 
-for i in range(len(bestSolution)):
-    print(bestSolution[i], end=" ")
-print(bestValue)
+for i in range(len(best_solution)):
+    print(best_solution[i], end=" ")
+print(best_value)
