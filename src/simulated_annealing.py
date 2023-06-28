@@ -34,7 +34,7 @@ def simulated_annealing(coordinates):
             new_value = helper.evaluate_solution(new_solution, coordinates)
 
             if new_value < best_value:
-                best_solution, best_value = new_solution, new_value
+                best_solution, best_value = new_solution.copy(), new_value
             else:
                 if helper.will_accept_inferior_answer(best_value, new_value, temperature):
                     best_solution, best_value = new_solution.copy(), new_value
