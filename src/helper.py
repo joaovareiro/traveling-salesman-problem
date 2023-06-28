@@ -70,9 +70,10 @@ def get_all_neighbours(solution):
 
 
 def get_random_neighbour(solution):
-    neighbours = get_all_neighbours(solution)
-    neighbour = neighbours[random.randint(0, len(solution)-1)]
-    return neighbour
+    vertex1 = random.randint(0, len(solution) - 1)
+    vertex2 = random.randint(0, len(solution) - 1)
+    new_solution = get_neighbour(solution, min(vertex1, vertex2), max(vertex1, vertex2))
+    return new_solution
 
 
 def probability_of_accepting_inferior_answer(temperature, current_value, new_value):
