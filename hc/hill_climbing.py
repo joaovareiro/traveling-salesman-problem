@@ -1,128 +1,118 @@
 import random
+from sys import argv
 import math
 
-def calcular_distancia(ponto1, ponto2):
-    x1, y1 = ponto1
-    x2, y2 = ponto2
+NUMBER_OF_ITERATIONS = int(argv[2])
+
+def calculate_distance(current_vertex, next_vertex):
+    x1, y1 = current_vertex
+    x2, y2 = next_vertex
     return math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2)
 
 
-def avaliacao(caminho, coordenadas):
-    distancia_total = 0
-    for i in range(len(caminho) - 1):
-        cidade_atual = caminho[i]
-        prox_cidade = caminho[i + 1]
-        distancia_total += calcular_distancia(
-            coordenadas[cidade_atual], coordenadas[prox_cidade]
+def evaluateSolution(solution, coordinates):
+    total_distance = 0
+    for vertex_index in range(len(solution) - 1):
+        current_vertex = solution[vertex_index]
+        next_vertex = solution[vertex_index + 1]
+        total_distance += calculate_distance(
+            coordinates[current_vertex], coordinates[next_vertex]
         )
-    return distancia_total
+    return total_distance
 
 
-def gerar_vizinhos(caminho):
-    vizinhos = []
-    for i in range(len(caminho)):
-        for j in range(i + 1, len(caminho)):
-            vizinho = caminho[:]
-            vizinho[i], vizinho[j] = vizinho[j], vizinho[i]
-            vizinhos.append(vizinho)
-    return vizinhos
+def get_neighbour(solution, first_vertex_index, second_vertex_index):
+    neighbour = solution.copy()
+
+    for i in range(0, first_vertex_index - 1):
+        neighbour[i] = solution[i]
+    for i in range(first_vertex_index, second_vertex_index + 1):
+        neighbour[i] = solution[second_vertex_index - i + first_vertex_index]
+    for i in range(second_vertex_index + 1, len(solution)):
+        neighbour[i] = solution[i]
+    
+    return neighbour
 
 
-def hill_climbing(caminho, coordenadas, dataset):
-    MAX_ITERACOES = 1000
-    t = 0
-    melhor = caminho
-    melhor_avaliacao = avaliacao(caminho, coordenadas)
-    historico_avaliacoes = []
+def generate_neighbours(solution):
+    n = len(solution)
+    neighbours = []
 
-    while t < MAX_ITERACOES:
-        local = "F"
-        aval_caminho = avaliacao(caminho, coordenadas)
+    for k in range(2, n-1):
+        neighbours.append(get_neighbour(solution, 1, k))
+    for i in range(2, n-1):
+        for k in range(i+1, n):
+            neighbours.append(get_neighbour(solution, i, k))
 
-        vizinhos = gerar_vizinhos(caminho)
-
-        encontrou_melhor = False
-        for vizinho in vizinhos:
-            aval_vizinho = avaliacao(vizinho, coordenadas)
-            if aval_vizinho < aval_caminho:
-                caminho = vizinho
-                local = "V"
-                encontrou_melhor = True
-                break
-
-        if not encontrou_melhor:
-            break
-
-        t += 1
-
-        if avaliacao(caminho, coordenadas) < melhor_avaliacao:
-            melhor = caminho
-            melhor_avaliacao = avaliacao(caminho, coordenadas)
-
-        historico_avaliacoes.append((t, melhor_avaliacao, melhor))
-
-        print(f"Iteração {t}: Melhor Avaliação = {avaliacao(melhor, coordenadas)}")
-
-    return melhor, melhor_avaliacao, historico_avaliacoes
+    return neighbours
 
 
-def carregar_coordenadas(nome_arquivo):
-    coordenadas = {}
-    with open(nome_arquivo, "r") as arquivo:
-        for linha in arquivo:
-            cidade, x, y = linha.split()
-            coordenadas[int(cidade) - 1] = (float(x), float(y))
-    return coordenadas
+def get_best_neighbour(neighbours, coordinates):
+    best_neighbour = neighbours[0]
+    best_neighbour_value = evaluateSolution(best_neighbour, coordinates)
+    for neighbour in neighbours:
+        neighbour_value = evaluateSolution(neighbour, coordinates)
+        if neighbour_value < best_neighbour_value:
+            best_neighbour, best_neighbour_value = neighbour, neighbour_value
+    return best_neighbour, best_neighbour_value
 
 
-def salvar_melhor_solucao(melhor_caminho, melhor_avaliacao, dataset):
-    nome_arquivo = f"best_solution_{dataset}.txt"
-    with open(nome_arquivo, "w") as arquivo:
-        arquivo.write("Melhor Caminho\n")
-        arquivo.write(f"{melhor_caminho}\n")
-        arquivo.write("Melhor Avaliação\n")
-        arquivo.write(f"{melhor_avaliacao}\n")
+def hill_climbing(vertices_keys, coordinates):
+    current_iteration = 0
+    # define best solution as random order of vertices
+    best_solution = vertices_keys.copy()
+    random.shuffle(best_solution)
+    # evaluate best solution
+    best_value = evaluateSolution(best_solution, coordinates)
+
+    while current_iteration < NUMBER_OF_ITERATIONS:
+        local_best = False
+        # define local best solution as random order of vertices
+        local_best_solution = vertices_keys.copy()
+        random.shuffle(local_best_solution)
+        # evaluate local best solution
+        local_best_value = evaluateSolution(local_best_solution, coordinates)
+
+        while not local_best:
+            # generate neighbours
+            neighbours = generate_neighbours(local_best_solution)
+            # get best neighbour
+            best_neighbour, best_neighbour_value = get_best_neighbour(neighbours, coordinates)
+
+            # if neighbour is better than best, best = neighbour
+            if best_neighbour_value < local_best_value:
+                local_best_solution, local_best_value = best_neighbour, best_neighbour_value
+            # else, local_best_solution is the local optimum
+            else:
+                local_best = True
+
+        current_iteration += 1
+
+        # if local_best is better than global_best, global_best = local_best
+        if local_best_value < best_value:
+            best_solution, best_value = local_best_solution, local_best_value
+
+    return best_solution, best_value
 
 
-def salvar_historico_avaliacoes(historico_avaliacoes, dataset):
-    nome_arquivo = f"iterations_{dataset}.txt"
-    with open(nome_arquivo, "w") as arquivo:
-        arquivo.write("Iteração\tMelhor Avaliação\tMelhor Caminho\n")
-        for iteracao, avaliacao, caminho in historico_avaliacoes:
-            arquivo.write(f"{iteracao}\t\t{avaliacao}\t\t{caminho}\n")
+def read_data(file_path):
+    data = {}
+    with open(file_path, "r") as file:
+        for line in file:
+            line_data = line.rstrip().split()
+            id = int(line_data[0]) - 1
+            coordinates = (int(line_data[1]), int(line_data[2]))
+            data[id] = coordinates
+    return data
 
 
-datasets = ["att48.tsp", "berlin52.tsp", "bier127.tsp", "eil76.tsp","kroA100.tsp", "kroE100.tsp", "pr76.tsp", "rat99.tsp", "st70.tsp"]
-N_REPETICOES = 300
+file_path = argv[1]
+coordinates = read_data(file_path)
+vertices_keys = list(coordinates.keys())
+solution, value = hill_climbing(
+    vertices_keys, coordinates
+)
 
-for dataset in datasets:
-    melhor_global = None
-    melhor_avaliacao_global = float("inf")
-    historico_avaliacoes_global = []
-
-    for _ in range(N_REPETICOES):
-        nome_arquivo = dataset
-        coordenadas = carregar_coordenadas(nome_arquivo)
-
-        caminho = list(coordenadas.keys())
-        random.shuffle(caminho)
-
-        melhor_caminho, melhor_avaliacao, historico_avaliacoes = hill_climbing(
-            caminho, coordenadas, dataset
-        )
-
-        if melhor_avaliacao < melhor_avaliacao_global:
-            melhor_global = melhor_caminho
-            melhor_avaliacao_global = melhor_avaliacao
-            historico_avaliacoes_global = historico_avaliacoes
-
-        print(f"Melhor caminho encontrado para {dataset}: {melhor_caminho}")
-        print(f"Melhor avaliação encontrada para {dataset}: {melhor_avaliacao}")
-        print()
-
-    salvar_melhor_solucao(melhor_global, melhor_avaliacao_global, dataset)
-    salvar_historico_avaliacoes(historico_avaliacoes_global, dataset)
-
-    print(f"Melhor solução global para {dataset} salva no arquivo 'best_solution_{dataset}.txt'")
-    print(f"Histórico das melhores avaliações para {dataset} salvo no arquivo 'iterations_{dataset}.txt'")
-    print()
+print(f"Melhor caminho encontrado para {file_path}: {solution}")
+print(f"Melhor avaliação encontrada para {file_path}: {value}")
+print()
