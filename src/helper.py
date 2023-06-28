@@ -90,7 +90,7 @@ def write_solution_path(file, solution):
             if i != len(solution) - 1:
                 file.write(f"{solution[i] + 1} -> ")
             else:
-                file.write(f"{solution[i] + 1}\n\n")
+                file.write(f"{solution[i] + 1}\n\n\n")
 
 
 # Simulated Annealing
@@ -99,8 +99,7 @@ def sa_save_results(output_path, solution, value, temperature_max, cooling_rate,
         os.makedirs("output/SA")
 
     with open(output_path, "a+") as file:
-        file.write(f"""
-TEMPERATURE_MAX: {temperature_max}
+        file.write(f"""TEMPERATURE_MAX: {temperature_max}
 COOLING_RATE: {cooling_rate}
 NUMBER_OF_ITERATIONS: {number_of_iterations}
 TEMPERATURE_MIN: {temperature_min}
@@ -116,5 +115,5 @@ def hc_save_results(output_path, solution, value, number_of_iterations):
 
     with open(output_path, "a+") as file:
         file.write(f"NUMBER_OF_ITERATIONS: {number_of_iterations}\n")
-        file.write(f"VALUE: {value:.2f}\n")
+        file.write(f"\nVALUE: {value:.2f}\n")
         write_solution_path(file, solution)
