@@ -5,14 +5,13 @@ import helper
 
 FILE_PATH = argv[1]
 NUMBER_OF_ITERATIONS = int(argv[2])
+OUTPUT_PATH = FILE_PATH.replace("input", "output/HC")
 
 def main():
     coordinates = helper.read_data(FILE_PATH)
     solution, value = hill_climbing(coordinates)
 
-    print(f"Melhor caminho encontrado para {FILE_PATH}: {solution}")
-    print(f"Melhor avaliação encontrada para {FILE_PATH}: {value}")
-    print()
+    helper.hc_save_results(OUTPUT_PATH, solution, value, NUMBER_OF_ITERATIONS)
 
 def hill_climbing(coordinates):
     current_iteration = 0

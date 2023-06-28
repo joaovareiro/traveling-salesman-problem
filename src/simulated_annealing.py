@@ -9,15 +9,14 @@ TEMPERATURE_MAX = int(argv[2])
 COOLING_RATE = float(argv[3])
 NUMBER_OF_ITERATIONS = int(argv[4])
 TEMPERATURE_MIN = int(argv[5])
+OUTPUT_PATH = FILE_PATH.replace("input", "output/SA")
 
 
 def main():
     coordinates = helper.read_data(FILE_PATH)
     solution, value = simulated_annealing(coordinates)
 
-    print(f"Melhor caminho encontrado para {FILE_PATH}: {solution}")
-    print(f"Melhor avaliação encontrada para {FILE_PATH}: {value}")
-    print()
+    helper.sa_save_results(OUTPUT_PATH, solution, value, TEMPERATURE_MAX, COOLING_RATE, NUMBER_OF_ITERATIONS, TEMPERATURE_MIN)
 
 
 def simulated_annealing(coordinates):
