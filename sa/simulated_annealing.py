@@ -2,10 +2,10 @@ import math
 from sys import argv
 import random
 
-TEMPERATURE_MAX = 10
-COOLING_RATE = 0.95
-NUMBER_OF_ITERATIONS = 20
-TEMPERATURE_MIN = 5
+TEMPERATURE_MAX = int(argv[2])
+COOLING_RATE = float(argv[3])
+NUMBER_OF_ITERATIONS = int(argv[4])
+TEMPERATURE_MIN = int(argv[5])
 
 def read_data(file_path):
     data = {}
@@ -57,6 +57,7 @@ def probability(temperature, current_value, new_value):
 file_path = argv[1]
 # read data from file
 coordinates = read_data(file_path)
+# define best solution as random order of vertices
 best_solution = list(coordinates.keys())
 random.shuffle(best_solution)
 # evaluate initial solution
