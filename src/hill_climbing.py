@@ -27,11 +27,11 @@ def hill_climbing(coordinates):
         local_best_value = helper.evaluate_solution(local_best_solution, coordinates)
 
         while not is_local_best:
-            neighbours = helper.get_all_neighbours(local_best_solution)
-            best_neighbour, best_neighbour_value = helper.get_best_neighbour(neighbours, coordinates)
+            neighbors = helper.get_all_neighbors(local_best_solution)
+            best_neighbor, best_neighbor_value = helper.get_best_neighbor(neighbors, coordinates)
 
-            if best_neighbour_value < local_best_value:
-                local_best_solution, local_best_value = best_neighbour, best_neighbour_value
+            if best_neighbor_value < local_best_value:
+                local_best_solution, local_best_value = best_neighbor, best_neighbor_value
             else:
                 is_local_best = True
 

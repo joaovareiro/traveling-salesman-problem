@@ -30,7 +30,7 @@ def simulated_annealing(coordinates):
         current_iteration = 0
 
         while current_iteration != NUMBER_OF_ITERATIONS:
-            new_solution = helper.get_random_neighbour(best_solution)
+            new_solution = helper.get_random_neighbor(best_solution)
             new_value = helper.evaluate_solution(new_solution, coordinates)
 
             if new_value < best_value:

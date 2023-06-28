@@ -29,50 +29,50 @@ def evaluate_solution(solution, coordinates):
     return total_distance
 
 
-def get_best_neighbour(neighbours, coordinates):
-    best_neighbour = neighbours[0]
-    best_neighbour_value = evaluate_solution(best_neighbour, coordinates)
+def get_best_neighbor(neighbors, coordinates):
+    best_neighbor = neighbors[0]
+    best_neighbor_value = evaluate_solution(best_neighbor, coordinates)
 
-    for index in range(1, len(neighbours)):
-        neighbour = neighbours[index]
-        neighbour_value = evaluate_solution(neighbour, coordinates)
+    for index in range(1, len(neighbors)):
+        neighbor = neighbors[index]
+        neighbor_value = evaluate_solution(neighbor, coordinates)
 
-        if neighbour_value < best_neighbour_value:
-            best_neighbour, best_neighbour_value = neighbour, neighbour_value
+        if neighbor_value < best_neighbor_value:
+            best_neighbor, best_neighbor_value = neighbor, neighbor_value
 
-    return best_neighbour, best_neighbour_value
+    return best_neighbor, best_neighbor_value
 
 
-def get_neighbour(solution, first_vertex_index, second_vertex_index):
-    neighbour = solution.copy()
+def get_neighbor(solution, first_vertex_index, second_vertex_index):
+    neighbor = solution.copy()
 
     for i in range(0, first_vertex_index):
-        neighbour[i] = solution[i]
+        neighbor[i] = solution[i]
     for i in range(first_vertex_index, second_vertex_index + 1):
-        neighbour[i] = solution[second_vertex_index - i + first_vertex_index]
+        neighbor[i] = solution[second_vertex_index - i + first_vertex_index]
     for i in range(second_vertex_index + 1, len(solution)):
-        neighbour[i] = solution[i]
+        neighbor[i] = solution[i]
     
-    return neighbour
+    return neighbor
 
 
-def get_all_neighbours(solution):
-    neighbours = []
+def get_all_neighbors(solution):
+    neighbors = []
 
     for i in range(1, len(solution) - 1):
-        neighbours.append(get_neighbour(solution, 0, i))
+        neighbors.append(get_neighbor(solution, 0, i))
 
     for i in range(1, len(solution) - 1):
         for j in range(i + 1, len(solution)):
-            neighbours.append(get_neighbour(solution, i, j))
+            neighbors.append(get_neighbor(solution, i, j))
 
-    return neighbours
+    return neighbors
 
 
-def get_random_neighbour(solution):
+def get_random_neighbor(solution):
     vertex1 = random.randint(0, len(solution) - 1)
     vertex2 = random.randint(0, len(solution) - 1)
-    new_solution = get_neighbour(solution, min(vertex1, vertex2), max(vertex1, vertex2))
+    new_solution = get_neighbor(solution, min(vertex1, vertex2), max(vertex1, vertex2))
     return new_solution
 
 
