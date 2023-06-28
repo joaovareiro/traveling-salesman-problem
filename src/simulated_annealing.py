@@ -31,15 +31,13 @@ def simulated_annealing(coordinates):
         current_iteration = 0
 
         while current_iteration != NUMBER_OF_ITERATIONS:
-            vertex1 = random.randint(0, len(best_solution) - 1)
-            vertex2 = random.randint(0, len(best_solution) - 1)
-            new_solution = helper.get_neighbour(best_solution, min(vertex1, vertex2), max(vertex1, vertex2))
+            new_solution = helper.get_random_neighbour(best_solution)
             new_value = helper.evaluate_solution(new_solution, coordinates)
 
             if new_value < best_value:
                 best_solution, best_value = new_solution, new_value
             else:
-                if random.random() < helper.probability_of_accepting_inferior_answer(temperature, best_value, new_value):
+                if helper.will_accept_inferior_answer(best_value, new_value, temperature):
                     best_solution, best_value = new_solution.copy(), new_value
 
             current_iteration += 1
