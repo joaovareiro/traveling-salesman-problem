@@ -7,9 +7,10 @@ def read_data(file_path):
     with open(file_path, "r") as file:
         for line in file:
             line_data = line.rstrip().split()
-            id = int(line_data[0]) - 1
-            coordinates = (int(line_data[1]), int(line_data[2]))
-            data[id] = coordinates
+            if len(line_data) != 0:
+                id = int(line_data[0]) - 1
+                coordinates = (float(line_data[1]), float(line_data[2]))
+                data[id] = coordinates
     return data
 
 
